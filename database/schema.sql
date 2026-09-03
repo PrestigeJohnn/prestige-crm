@@ -330,8 +330,8 @@ CREATE TABLE IF NOT EXISTS meetings (
 );
 
 -- =============================================
-|-- INDEXES (性能优化)
-|-- =============================================
+-- INDEXES (性能优化)
+-- =============================================
 CREATE INDEX IF NOT EXISTS idx_contracts_account ON contracts(account_id);
 CREATE INDEX IF NOT EXISTS idx_contracts_status ON contracts(status);
 CREATE INDEX IF NOT EXISTS idx_invoices_contract ON invoices(contract_id);
@@ -384,65 +384,13 @@ CREATE INDEX IF NOT EXISTS idx_activity_log_type ON activity_log(type);
 CREATE INDEX IF NOT EXISTS idx_activity_log_date ON activity_log(created_at);
 
 -- =============================================
--- 20. QUOTES (报价单)
--- =============================================
-CREATE TABLE IF NOT EXISTS quotes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    quote_number TEXT NOT NULL UNIQUE,
-    account_id INTEGER NOT NULL REFERENCES accounts(id),
-    contact_id INTEGER REFERENCES contacts(id),
-    title TEXT NOT NULL,
-    description TEXT,
-    subtotal REAL DEFAULT 0,
-    tax_rate REAL DEFAULT 0,
-    tax_amount REAL DEFAULT 0,
-    discount REAL DEFAULT 0,
-    total REAL DEFAULT 0,
-    currency TEXT DEFAULT 'SGD',
-    valid_until TEXT,
-    status TEXT DEFAULT 'draft' CHECK(status IN ('draft', 'sent', 'accepted', 'rejected', 'expired')),
-    terms_conditions TEXT,
-    created_by TEXT DEFAULT 'admin',
-    created_at TEXT DEFAULT (datetime('now', '+8 hours')),
-    updated_at TEXT DEFAULT (datetime('now', '+8 hours'))
-);
-CREATE INDEX IF NOT EXISTS idx_quotes_account ON quotes(account_id);
-CREATE INDEX IF NOT EXISTS idx_quotes_status ON quotes(status);
-CREATE INDEX IF NOT EXISTS idx_quotes_number ON quotes(quote_number);
+-- NOTE: duplicate v2 QUOTES definition removed — v1 in section 7 is authoritative (server code uses quote_no).
 
 -- =============================================
--- 21. QUOTE ITEMS (报价明细)
--- =============================================
-CREATE TABLE IF NOT EXISTS quote_items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    quote_id INTEGER NOT NULL REFERENCES quotes(id) ON DELETE CASCADE,
-    product_id INTEGER REFERENCES products(id),
-    description TEXT NOT NULL,
-    quantity REAL DEFAULT 1,
-    unit_price REAL NOT NULL,
-    discount REAL DEFAULT 0,
-    line_total REAL NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_quote_items_quote ON quote_items(quote_id);
+-- NOTE: duplicate v2 QUOTE ITEMS definition removed — v1 in section 8 is authoritative.
 
 -- =============================================
--- 22. PRODUCTS (产品库)
--- =============================================
-CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    sku TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
-    description TEXT,
-    category TEXT,
-    unit_price REAL NOT NULL,
-    cost_price REAL,
-    stock_quantity INTEGER DEFAULT 0,
-    is_active INTEGER DEFAULT 1,
-    created_at TEXT DEFAULT (datetime('now', '+8 hours')),
-    updated_at TEXT DEFAULT (datetime('now', '+8 hours'))
-);
-CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
+-- NOTE: duplicate v2 PRODUCTS definition removed — v1 in section 10 is authoritative (server code uses cost/selling_price/stock).
 
 -- =============================================
 -- 23. PR REQUESTS (采购申请单)
@@ -613,8 +561,8 @@ INSERT OR IGNORE INTO system_settings (key, value, description) VALUES
 ('tax_rate', '9', 'GST rate (%)'),
 ('logo_url', '', 'Company logo URL');
 
--- Seed sample products
-INSERT OR IGNORE INTO products (sku, name, description, category, unit_price, cost_price, stock_quantity) VALUES
+-- Seed sample products (v1 columns: cost / selling_price / stock)
+INSERT OR IGNORE INTO products (sku, name, description, category, selling_price, cost, stock) VALUES
 ('ELEC-001', 'Industrial Sensor Module A1', 'High-precision temperature sensor for industrial use', 'Electronics', 150.00, 80.00, 500),
 ('ELEC-002', 'Control Board X200', 'Multi-channel control board for automation', 'Electronics', 320.00, 180.00, 200),
 ('MECH-001', 'Hydraulic Pump HP-500', 'Heavy-duty hydraulic pump for construction equipment', 'Mechanical', 2500.00, 1500.00, 50),

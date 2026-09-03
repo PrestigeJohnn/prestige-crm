@@ -113,8 +113,13 @@ function initDatabase() {
   const seeded = process.argv.includes('--seed');
   const db = getDb();
 
-  // Only init if DB file doesn't exist
-  if (!fs.existsSync(DB_PATH)) {
+  // Self-heal: apply schema when the users table is missing
+  // (fresh/empty DB file — e.g. first boot on Render)
+  let hasUsers = false;
+  try {
+    hasUsers = !!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
+  } catch { hasUsers = false; }
+  if (!hasUsers) {
     console.log('[DB] Initializing database...');
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8');
     db.exec(schema);
