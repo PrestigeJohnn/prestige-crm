@@ -29,16 +29,17 @@ logs/
 Thumbs.db
 
 # Electron
-dist-electron/
 *.exe
 *.msi
 
 # Test coverage
 coverage/
 
-# Database
+# Database (will be initialized at runtime)
 database/crm.db
 database/*.db
+database/*.db-shm
+database/*.db-wal
 
 # Temporary
 *.tmp
