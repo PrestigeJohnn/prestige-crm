@@ -1,0 +1,13 @@
+Copied: D:\AI-CRM\services -> D:\AI-CRM\server\services
+Copied: D:\AI-CRM\middleware -> D:\AI-CRM\server\middleware
+Fixed: routes/notifier.js
+server.js requires check: OK
+Step 4: webpack...
+webpack OK
+Step 5: electron-builder...
+electron-builder OK
+EXE exists: true
+EXE size: 74.7 MB
+node_modules in unpacked: true
+services/ in unpacked: true
+server/services/ in unpacked: true

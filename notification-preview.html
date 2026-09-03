@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notification Popover Design Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F0F2F5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  
+  .preview-container {
+    width: 420px;
+    position: relative;
+  }
+  
+  .label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* === CURRENT (before fix) === */
+  .current-popover {
+    background: #fff;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    width: 360px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 0;  /* PROBLEM: no padding! */
+  }
+  .current-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;  /* PROBLEM: content touches edge! */
+    margin-bottom: 12px;
+  }
+  .current-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .current-header a {
+    font-size: 12px;
+    color: #1890ff;
+    cursor: pointer;
+  }
+  .current-divider {
+    border-top: 1px solid #f0f0f0;
+    margin: 0;
+    padding: 0;
+  }
+  .current-item {
+    padding: 10px 0;  /* PROBLEM: no horizontal padding! */
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .current-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1890ff;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .current-item .dot.unread { background: #faad14; }
+  .current-item .content { flex: 1; }
+  .current-item .title { font-size: 13px; color: #333; margin-bottom: 2px; }
+  .current-item .meta { font-size: 11px; color: #999; display: flex; gap: 6px; }
+  .current-footer {
+    text-align: center;
+    padding: 12px 0;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 8px;
+  }
+  .current-footer button {
+    font-size: 12px;
+    color: #1890ff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  /* === FIXED (after fix) === */
+  .fixed-popover {
+    background: #fff;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    width: 360px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 16px;  /* FIX: proper padding */
+    margin-top: 40px;
+  }
+  .fixed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .fixed-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .fixed-header a {
+    font-size: 12px;
+    color: #1890ff;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .fixed-divider { margin: 0; }
+  .fixed-item {
+    padding: 10px 0;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .fixed-item .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .fixed-item .icon.blue { background: #e6f7ff; color: #1890ff; }
+  .fixed-item .icon.green { background: #f6ffed; color: #52c41a; }
+  .fixed-item .icon.orange { background: #fff7e6; color: #fa8c16; }
+  .fixed-item .content { flex: 1; }
+  .fixed-item .title { font-size: 13px; color: #333; margin-bottom: 4px; line-height: 1.4; }
+  .fixed-item .meta { font-size: 11px; color: #999; display: flex; gap: 6px; align-items: center; }
+  .fixed-item .badge-new {
+    background: #e6f0ff;
+    color: #1890ff;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .fixed-footer {
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .fixed-footer button {
+    font-size: 12px;
+    color: #1890ff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 4px;
+  }
+  .fixed-footer button:hover { background: #f0f5ff; }
+  
+  .comparison {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .comparison .before, .comparison .after {
+    flex: 1;
+  }
+  .comparison .before .label { color: #d93025; }
+  .comparison .after .label { color: #188038; }
+</style>
+</head>
+<body>
+
+<div class="preview-container">
+  <h2 style="font-size: 16px; color: #333; margin-bottom: 20px;">Notification Popover — Before vs After</h2>
+  
+  <!-- BEFORE -->
+  <div class="before">
+    <div class="label">❌ Before (贴边)</div>
+    <div class="current-popover">
+      <div class="current-header">
+        <h3>Notifications</h3>
+        <a>Mark all read</a>
+      </div>
+      <hr class="current-divider">
+      <div class="current-item">
+        <div class="dot unread"></div>
+        <div class="content">
+          <div class="title">New lead from ABC Corp</div>
+          <div class="meta"><span>2 min ago</span><span>•</span><span>Sales</span></div>
+        </div>
+      </div>
+      <div class="current-item">
+        <div class="dot"></div>
+        <div class="content">
+          <div class="title">Quote #QT-042 accepted</div>
+          <div class="meta"><span>1 hour ago</span><span>•</span><span>Sales</span></div>
+        </div>
+      </div>
+      <div class="current-item">
+        <div class="dot unread"></div>
+        <div class="content">
+          <div class="title">Meeting: Product demo with XYZ Ltd</div>
+          <div class="meta"><span>3 hours ago</span><span>•</span><span>Meeting</span></div>
+        </div>
+      </div>
+      <div class="current-footer">
+        <button>View All Notifications →</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- AFTER -->
+  <div class="after">
+    <div class="label">✅ After (有内边距)</div>
+    <div class="fixed-popover">
+      <div class="fixed-header">
+        <h3>Notifications</h3>
+        <a>Mark all read</a>
+      </div>
+      <hr class="fixed-divider">
+      <div class="fixed-item">
+        <div class="icon blue">🔔</div>
+        <div class="content">
+          <div class="title">New lead from ABC Corp</div>
+          <div class="meta"><span>2 min ago</span><span>•</span><span>Sales</span><span class="badge-new">NEW</span></div>
+        </div>
+      </div>
+      <div class="fixed-item">
+        <div class="icon green">✓</div>
+        <div class="content">
+          <div class="title">Quote #QT-042 accepted</div>
+          <div class="meta"><span>1 hour ago</span><span>•</span><span>Sales</span></div>
+        </div>
+      </div>
+      <div class="fixed-item">
+        <div class="icon orange">📅</div>
+        <div class="content">
+          <div class="title">Meeting: Product demo with XYZ Ltd</div>
+          <div class="meta"><span>3 hours ago</span><span>•</span><span>Meeting</span><span class="badge-new">NEW</span></div>
+        </div>
+      </div>
+      <div class="fixed-footer">
+        <button>View All Notifications →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
